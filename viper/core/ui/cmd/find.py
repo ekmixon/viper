@@ -34,10 +34,7 @@ class Find(Command):
         # argument we first retrieve a list of existing tags and the count
         # of files associated with each of them.
         if args.tags:
-            # Retrieve list of tags.
-            tags = db.list_tags()
-
-            if tags:
+            if tags := db.list_tags():
                 rows = []
                 # For each tag, retrieve the count of files associated with it.
                 for tag in tags:
@@ -59,7 +56,7 @@ class Find(Command):
             return
 
         key = args.type
-        if key != 'all' and key != 'latest':
+        if key not in ['all', 'latest']:
             try:
                 # The second argument is the search value.
                 value = args.value
@@ -76,18 +73,15 @@ class Find(Command):
 
         # Populate the list of search results.
         rows = []
-        count = 1
-        for item in items:
+        for count, item in enumerate(items, start=1):
             tag = ', '.join([t.tag for t in item.tag if t.tag])
             row = [count, item.name, item.mime, item.md5, tag]
-            if key == 'ssdeep':
-                row.append(item.ssdeep)
             if key == 'latest':
                 row.append(item.created_at)
 
+            elif key == 'ssdeep':
+                row.append(item.ssdeep)
             rows.append(row)
-            count += 1
-
         # Update find results in current session.
         __sessions__.find = items
 
@@ -95,7 +89,7 @@ class Find(Command):
         header = ['#', 'Name', 'Mime', 'MD5', 'Tags']
         if key == 'latest':
             header.append('Created At')
-        if key == 'ssdeep':
+        elif key == 'ssdeep':
             header.append("Ssdeep")
 
         self.log("table", dict(header=header, rows=rows))

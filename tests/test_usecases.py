@@ -52,7 +52,7 @@ class TestUseCases:
 
         assert re.search(r".*Session opened on.*", lines[0])
         assert not re.search(r".*Unable to store file.*", out)
-        assert re.search(r".*{}.*".format(name), lines[1])
+        assert re.search(f".*{name}.*", lines[1])
         assert re.search(r".*Running command.*", lines[5])
         assert re.search(r".*Deleted opened file.*", lines[7])
 
@@ -78,7 +78,7 @@ class TestUseCases:
 
         assert re.search(r".*Session opened on.*", lines[0])
         assert not re.search(r".*Unable to store file.*", out)
-        assert re.search(r".*{}.*".format(name), lines[1])
+        assert re.search(f".*{name}.*", lines[1])
         assert re.search(r".*Running command.*", lines[5])
         assert re.search(r".*Deleted opened file.*", lines[7])
 
@@ -103,7 +103,7 @@ class TestUseCases:
 
         assert re.search(r".*Session opened on.*", lines[0])
         assert not re.search(r".*Unable to store file.*", out)
-        assert re.search(r".*{}.*".format(name), lines[1])
+        assert re.search(f".*{name}.*", lines[1])
         assert re.search(r".*Running command.*", lines[5])
         assert re.search(r".*Deleted opened file.*", lines[7])
 

@@ -58,18 +58,13 @@ class Open(Command):
                 return
 
             __sessions__.new(target)
-        # If it's a URL, download it and open a session on the temporary file.
         elif args.url:
-            data = download(url=target, tor=args.tor)
-
-            if data:
+            if data := download(url=target, tor=args.tor):
                 tmp = tempfile.NamedTemporaryFile(delete=False)
                 tmp.write(data)
                 tmp.close()
 
                 __sessions__.new(tmp.name)
-        # Try to open the specified file from the list of results from
-        # the last find command.
         elif args.last:
             if __sessions__.find:
                 try:
@@ -84,7 +79,6 @@ class Open(Command):
                         break
             else:
                 self.log('warning', "You haven't performed a find yet")
-        # Otherwise we assume it's an hash of an previously stored sample.
         else:
             target = target.strip().lower()
 
@@ -103,6 +97,5 @@ class Open(Command):
                 self.log('warning', "No file found with the given hash {0}".format(target))
                 return
 
-            path = get_sample_path(rows[0].sha256)
-            if path:
+            if path := get_sample_path(rows[0].sha256):
                 __sessions__.new(path)

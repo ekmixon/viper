@@ -22,7 +22,7 @@ from tests.conftest import FIXTURE_DIR
 class TestCommands:
     cmd = load_commands()
 
-    def setup_class(cls):
+    def setup_class(self):
         cmd = load_commands()
         cmd['open']['obj']('-f', os.path.join(FIXTURE_DIR, "chromeinstall-8u31.exe"))
         cmd['store']['obj']()

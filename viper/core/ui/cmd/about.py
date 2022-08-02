@@ -26,28 +26,23 @@ class About(Command):
         except SystemExit:
             return
 
-        rows = list()
-        rows.append(["Viper Version", __version__])
-        rows.append(["Python Version", platform.python_version()])
-        rows.append(["Homepage", "https://viper.li"])
-        rows.append(["Issue Tracker", "https://github.com/viper-framework/viper/issues"])
+        rows = [
+            ["Viper Version", __version__],
+            ["Python Version", platform.python_version()],
+            ["Homepage", "https://viper.li"],
+            ["Issue Tracker", "https://github.com/viper-framework/viper/issues"],
+        ]
 
         self.log('table', dict(header=['About', ''], rows=rows))
 
-        rows = list()
-        rows.append(["Configuration File", __config__.config_file])
-
+        rows = [["Configuration File", __config__.config_file]]
         module_path = os.path.join(__config__.paths.module_path, "modules")
 
         if __project__.name:
             rows.append(["Active Project", __project__.name])
-            rows.append(["Storage Path", __project__.path])
-            rows.append(["Module Path", module_path])
-            rows.append(["Database Path", Database().engine.url])
         else:
             rows.append(["Active Project", "default"])
-            rows.append(["Storage Path", __project__.path])
-            rows.append(["Module Path", module_path])
-            rows.append(["Database Path", Database().engine.url])
-
+        rows.append(["Storage Path", __project__.path])
+        rows.append(["Module Path", module_path])
+        rows.append(["Database Path", Database().engine.url])
         self.log('table', dict(header=['Configuration', ''], rows=rows))

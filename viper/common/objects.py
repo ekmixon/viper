@@ -34,10 +34,10 @@ except ImportError:
 class Singleton(type):
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+    def __call__(self, *args, **kwargs):
+        if self not in self._instances:
+            self._instances[self] = super(Singleton, self).__call__(*args, **kwargs)
+        return self._instances[self]
 
 
 class MispEvent(object):
@@ -51,10 +51,7 @@ class MispEvent(object):
             else:
                 self.event.load(event)
         self.off = offline
-        if self.event.id:
-            self.current_dump_file = '{}.json'.format(self.event.id)
-        else:
-            self.current_dump_file = None
+        self.current_dump_file = f'{self.event.id}.json' if self.event.id else None
 
     def online(self):
         self.off = False
@@ -146,15 +143,17 @@ class File(object):
             try:
                 self.path.decode('ascii')
             except UnicodeEncodeError as err:
-                raise Python2UnsupportedUnicode("Non ASCII character(s) in file name not supported on Python2.\n"
-                                                "EncodeError: {}\n"
-                                                "File: {}\n"
-                                                "Please use Python >= 3.4".format(self.path.encode("utf-8"), err), "error")
+                raise Python2UnsupportedUnicode(
+                    f'Non ASCII character(s) in file name not supported on Python2.\nEncodeError: {self.path.encode("utf-8")}\nFile: {err}\nPlease use Python >= 3.4',
+                    "error",
+                )
+
             except UnicodeDecodeError as err:
-                raise Python2UnsupportedUnicode("Non ASCII character(s) in file name not supported on Python2.\n"
-                                                "DecodeError: {}\n"
-                                                "File: {}\n"
-                                                "Please use Python >= 3.4".format(self.path, err), "error")
+                raise Python2UnsupportedUnicode(
+                    f"Non ASCII character(s) in file name not supported on Python2.\nDecodeError: {self.path}\nFile: {err}\nPlease use Python >= 3.4",
+                    "error",
+                )
+
 
         return True
 
@@ -162,10 +161,10 @@ class File(object):
         try:
             with open(self.path, 'rb') as fd:
                 while True:
-                    chunk = fd.read(16 * 1024)
-                    if not chunk:
+                    if chunk := fd.read(16 * 1024):
+                        yield chunk
+                    else:
                         break
-                    yield chunk
         except Exception:
             return
 

@@ -73,32 +73,19 @@ class Notes(Command):
                     self.log('info', 'New note with title "{0}" added to the current file'.format(bold(title)))
 
         elif args.view:
-            # Retrieve note with the specified ID and print it.
-            note = db.get_note(args.view)
-            if note:
+            if note := db.get_note(args.view):
                 self.log('info', bold('Title: ') + note.title)
-                if isinstance(note.body, bytes):
-                    # OLD: Old style, the content is stored as bytes
-                    # This is fixed when the user edits the old note.
-                    body = note.body.decode()
-                else:
-                    body = note.body
-                self.log('info', '{}\n{}'.format(bold('Body:'), body))
+                body = note.body.decode() if isinstance(note.body, bytes) else note.body
+                self.log('info', f"{bold('Body:')}\n{body}")
             else:
                 self.log('info', "There is no note with ID {0}".format(args.view))
 
         elif args.edit:
-            # Retrieve note with the specified ID.
-            note = db.get_note(args.edit)
-            if note:
+            if note := db.get_note(args.edit):
                 # Create a new temporary file.
                 with tempfile.NamedTemporaryFile(mode='w+') as tmp:
                     # Write the old body to the temporary file.
-                    if isinstance(note.body, bytes):
-                        # OLD: Old style, the content is stored as bytes
-                        body = note.body.decode()
-                    else:
-                        body = note.body
+                    body = note.body.decode() if isinstance(note.body, bytes) else note.body
                     tmp.write(body)
                     tmp.flush()
                     tmp.seek(0)

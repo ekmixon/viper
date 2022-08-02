@@ -65,7 +65,7 @@ class TestConsole:
             in_fct = 'viper.core.ui.console.input'
         else:
             in_fct = 'builtins.input'
-        with mock.patch(in_fct, return_value='{};exit'.format(command)):
+        with mock.patch(in_fct, return_value=f'{command};exit'):
             instance.start()
         out, err = capsys.readouterr()
-        assert re.search(r".*{}.*".format(expected), out)
+        assert re.search(f".*{expected}.*", out)

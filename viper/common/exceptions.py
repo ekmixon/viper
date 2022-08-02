@@ -9,7 +9,7 @@ class GenericException(Exception):
         self.level = level.strip()
 
     def __str__(self):
-        return '{}: {}'.format(self.level, self.message)
+        return f'{self.level}: {self.message}'
 
     def get(self):
         return self.level, self.message

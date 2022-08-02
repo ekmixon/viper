@@ -58,17 +58,14 @@ class Archiver(object):
         min_python_version = self._check_min_python_version()
         dep_python = self._check_dependencies_python()
         dep_system = self._check_dependencies_system()
-        if min_python_version and dep_python and dep_system:
-            return True
-        else:
-            return False
+        return bool(min_python_version and dep_python and dep_system)
 
     def _check_min_python_version(self):
         if sys.version_info >= self.min_python_version:
-            log.debug("{}: Python Version ok".format(self.__class__.__name__))
+            log.debug(f"{self.__class__.__name__}: Python Version ok")
             return True
         else:
-            log.warning("{}: Python Version NOT ok".format(self.__class__.__name__))
+            log.warning(f"{self.__class__.__name__}: Python Version NOT ok")
             return False
 
     def _check_dependencies_python(self):
@@ -81,14 +78,17 @@ class Archiver(object):
             try:
                 pkg_resources.require(item)
             except pkg_resources.DistributionNotFound as err:
-                log.debug("{}: Missing Python dependency: {}".format(self.__class__.__name__, err))
+                log.debug(f"{self.__class__.__name__}: Missing Python dependency: {err}")
                 missing.append(item)
             except pkg_resources.VersionConflict as err:
-                log.debug("{}: Python dependency wrong version: {}".format(self.__class__.__name__, err))
+                log.debug(f"{self.__class__.__name__}: Python dependency wrong version: {err}")
                 missing.append(item)
 
         if missing:
-            log.warning("{}: Missing/Failed Python dependencies: {}".format(self.__class__.__name__, missing))
+            log.warning(
+                f"{self.__class__.__name__}: Missing/Failed Python dependencies: {missing}"
+            )
+
             return False
 
         return True
@@ -97,10 +97,15 @@ class Archiver(object):
         if not self.dependency_list_system:
             return True
 
-        missing = [item for item in self.dependency_list_system if not find_executable(item)]
+        if missing := [
+            item
+            for item in self.dependency_list_system
+            if not find_executable(item)
+        ]:
+            log.warning(
+                f"{self.__class__.__name__}: Missing System dependencies: {missing}"
+            )
 
-        if missing:
-            log.warning("{}: Missing System dependencies: {}".format(self.__class__.__name__, missing))
             return False
         else:
             return True
@@ -186,24 +191,24 @@ class Extractor(Archiver):
         """
 
         if not os.path.isfile(archive_path):
-            self.err = "invalid archive_path (file does not exist): {}".format(archive_path)
+            self.err = f"invalid archive_path (file does not exist): {archive_path}"
             log.error(self.err)
             return False
 
         if output_dir:
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
-                log.debug("creating output directory: {}".format(output_dir))
+                log.debug(f"creating output directory: {output_dir}")
         else:
             output_dir = tempfile.mkdtemp(prefix="viper_tmp_")
-            log.debug("created output directory: {}".format(output_dir))
+            log.debug(f"created output directory: {output_dir}")
 
         if cls_name:
             log.debug("Extractor specified by caller")
             try:
                 sub = self.extractors[cls_name]
             except KeyError:
-                self.err = "invalid Extractor: {}. Check for missing dependencies.".format(cls_name)
+                self.err = f"invalid Extractor: {cls_name}. Check for missing dependencies."
                 log.error(self.err)
                 return False
 
@@ -225,7 +230,8 @@ class Extractor(Archiver):
                             sub = self.extractors_by_extension[ext][0]  # try first anyway
 
             except KeyError:
-                self.err = "no available Extractor supports extension: {}. Check for missing dependencies.".format(cls_name)
+                self.err = f"no available Extractor supports extension: {cls_name}. Check for missing dependencies."
+
                 log.error(self.err)
                 return False
 
@@ -256,13 +262,16 @@ class ZipExtractor(Extractor):
     supports_password = True
 
     def run(self, password=None, **kwargs):
-        log.info("Extract: {}".format(self.title))
+        log.info(f"Extract: {self.title}")
 
         if password:
             try:
                 password = password.encode('ascii')  # py3 requires bytes (not str)
             except UnicodeEncodeError as err:
-                log.error("Extract ({}) failed. Password only supports ascii characters: {}".format(self.title, err))
+                log.error(
+                    f"Extract ({self.title}) failed. Password only supports ascii characters: {err}"
+                )
+
                 self.err = err
                 return False
 
@@ -271,7 +280,7 @@ class ZipExtractor(Extractor):
                 zf.extractall(self.output_path, pwd=password)
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             if "password" in err.__repr__():
                 log.warning("Password either missing or incorrect!")
             self.err = err
@@ -297,7 +306,7 @@ class GZipExtractor(Extractor):
         self._output_path = os.path.join(value, base_name)
 
     def run(self, **kwargs):
-        log.info("Extract: {}".format(self.title))
+        log.info(f"Extract: {self.title}")
 
         try:
             with gzip.GzipFile(self.input_path, 'rb') as zf:
@@ -307,7 +316,7 @@ class GZipExtractor(Extractor):
                 df.write(decompressed)
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -331,7 +340,7 @@ class BZ2Extractor(Extractor):
         self._output_path = os.path.join(value, base_name)
 
     def run(self, **kwargs):
-        log.info("Extract: {}".format(self.title))
+        log.info(f"Extract: {self.title}")
 
         try:
             with bz2.BZ2File(self.input_path, 'rb') as zf:
@@ -341,7 +350,7 @@ class BZ2Extractor(Extractor):
                 df.write(decompressed)
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -355,7 +364,7 @@ class TarExtractor(Extractor):
     supports_extensions = ["tar", "tar.gz", "tar.bz2"]
 
     def run(self, **kwargs):
-        log.info("Extract: {} (or tar.gz/tar.bz2)".format(self.title))
+        log.info(f"Extract: {self.title} (or tar.gz/tar.bz2)")
 
         if not tarfile.is_tarfile(self.input_path):
             self.err = "This is not a tar file"
@@ -367,7 +376,7 @@ class TarExtractor(Extractor):
                 tarf.extractall(self.output_path)
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -384,7 +393,7 @@ class RarExtractor(Extractor):
     supports_password = True
 
     def run(self, password=None, **kwargs):
-        log.info("Extract: {}".format(self.title))
+        log.info(f"Extract: {self.title}")
         import rarfile
 
         try:
@@ -392,7 +401,7 @@ class RarExtractor(Extractor):
                 rf.extractall(self.output_path, pwd=password)
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -408,14 +417,14 @@ class SevenZipSystemExtractor(Extractor):
     supports_password = True
 
     def run(self, password=None, **kwargs):
-        log.info("Extract: {}".format(self.title))
+        log.info(f"Extract: {self.title}")
 
         tmp_dir = tempfile.mkdtemp(prefix="viper_tmp_")
 
         try:
-            out = "-o{}".format(tmp_dir)
+            out = f"-o{tmp_dir}"
             if password:
-                pwd = "-p{}".format(password)
+                pwd = f"-p{password}"
                 subprocess.check_output(["7z", "x", out, "-r", "-y", pwd, self.input_path], stderr=subprocess.STDOUT)
             else:
                 subprocess.check_output(["7z", "x", out, "-r", "-y", self.input_path], stderr=subprocess.STDOUT)
@@ -424,7 +433,10 @@ class SevenZipSystemExtractor(Extractor):
                 shutil.move(os.path.join(tmp_dir, item), self.output_path)
 
         except subprocess.CalledProcessError as err:
-            log.error("Running shell command \"{}\" caused error: {} (RC: {}".format(err.cmd, err.output, err.returncode))
+            log.error(
+                f'Running shell command \"{err.cmd}\" caused error: {err.output} (RC: {err.returncode}'
+            )
+
             self.err = err
 
             lines = err.output.decode("utf-8")
@@ -435,7 +447,7 @@ class SevenZipSystemExtractor(Extractor):
             return False
 
         except Exception as err:
-            log.error("Extract ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Extract ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -553,7 +565,7 @@ class Compressor(Archiver):
         """
 
         if not os.path.isfile(file_path):
-            self.err = "invalid file_path (file does not exist): {}".format(file_path)
+            self.err = f"invalid file_path (file does not exist): {file_path}"
             log.error(self.err)
             return False
 
@@ -565,7 +577,7 @@ class Compressor(Archiver):
 
         if not archive_path:
             archive_dir = tempfile.mkdtemp(prefix="viper_tmp_")
-            log.debug("created output directory: {}".format(archive_dir))
+            log.debug(f"created output directory: {archive_dir}")
         else:
             archive_dir, archive_name = os.path.split(archive_path)
             if archive_name:
@@ -573,14 +585,14 @@ class Compressor(Archiver):
 
             if not os.path.exists(archive_dir):
                 os.makedirs(archive_dir)
-                log.debug("created output directory: {}".format(archive_dir))
+                log.debug(f"created output directory: {archive_dir}")
 
         if cls_name:  # try to get specified sub class by provided name
             log.debug("Compressor specified by caller")
             try:
                 sub = self.compressors[cls_name]
             except KeyError:
-                self.err = "invalid Compressor: {} (check for missing dependencies)".format(cls_name)
+                self.err = f"invalid Compressor: {cls_name} (check for missing dependencies)"
                 log.error(self.err)
                 return False
 
@@ -609,7 +621,8 @@ class Compressor(Archiver):
                             sub = self.compressors_by_extension[archive_ext][0]  # try first anyway
 
             except KeyError:
-                self.err = "no available Extractor supports extension: {} (check for missing dependencies)".format(cls_name)
+                self.err = f"no available Extractor supports extension: {cls_name} (check for missing dependencies)"
+
                 log.error(self.err)
                 return False
 
@@ -618,16 +631,16 @@ class Compressor(Archiver):
 
         if archive_ext:
             if archive_ext in sub.supports_extensions:  # e.g. for ZipCompressor file.zip stays file.zip
-                archive_name = "{}.{}".format(archive_basename, archive_ext)
+                archive_name = f"{archive_basename}.{archive_ext}"
             else:   # e.g. file.exe will become file.exe.zip
-                archive_name = "{}.{}.{}".format(archive_basename, archive_ext, sub.supports_extensions[0])
+                archive_name = f"{archive_basename}.{archive_ext}.{sub.supports_extensions[0]}"
         else:  # e.g. file will become file.zip
-            archive_name = "{}.{}".format(archive_basename, sub.supports_extensions[0])
+            archive_name = f"{archive_basename}.{sub.supports_extensions[0]}"
 
         output_path = os.path.join(archive_dir, archive_name)
 
         if os.path.isfile(output_path):
-            self.err = "file exists - will not overwrite: {}".format(output_path)
+            self.err = f"file exists - will not overwrite: {output_path}"
             log.error(self.err)
             return False
 
@@ -638,7 +651,8 @@ class Compressor(Archiver):
         sub.output_archive_basename, sub.output_archive_ext = self.auto_discover_ext(archive_name)
 
         if password and not sub.supports_password:
-            self.err = "password provided but modules does not support encryption: {}".format(sub.cls_name)
+            self.err = f"password provided but modules does not support encryption: {sub.cls_name}"
+
             log.error(self.err)
             return False
 
@@ -684,7 +698,7 @@ class ZipCompressor(Compressor):
     supports_extensions = ["zip"]
 
     def run(self, **kwargs):
-        log.info("Compress: {}".format(self.title))
+        log.info(f"Compress: {self.title}")
 
         try:
             with zipfile.ZipFile(self.output_archive_path, 'w') as zf:
@@ -692,7 +706,7 @@ class ZipCompressor(Compressor):
                     zf.write(item_path, arcname=os.path.join(self.output_archive_basename, item_name))
 
         except Exception as err:
-            log.error("Compress ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Compress ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 
@@ -708,7 +722,7 @@ class SevenZipSystemCompressor(Compressor):
     supports_password = True
 
     def run(self, password=None, **kwargs):
-        log.info("Compress: {}".format(self.title))
+        log.info(f"Compress: {self.title}")
 
         tmp_dir = tempfile.mkdtemp(prefix="viper_tmp_")
         archive_sub_dir = os.path.join(tmp_dir, self.output_archive_basename)
@@ -719,20 +733,23 @@ class SevenZipSystemCompressor(Compressor):
 
         try:
             if password:
-                pwd = "-p{}".format(password)
+                pwd = f"-p{password}"
                 res = subprocess.check_output(["7z", "a", pwd, "-y", self.output_archive_path, "-w", archive_sub_dir], stderr=subprocess.STDOUT)
             else:
                 res = subprocess.check_output(["7z", "a", "-y", self.output_archive_path, "-w", archive_sub_dir], stderr=subprocess.STDOUT)
-            log.debug("Result: {}".format(res))
+            log.debug(f"Result: {res}")
 
         except subprocess.CalledProcessError as err:
-            log.debug("Running shell command \"{}\" caused error: {} (RC: {}".format(err.cmd, err.output, err.returncode))
+            log.debug(
+                f'Running shell command \"{err.cmd}\" caused error: {err.output} (RC: {err.returncode}'
+            )
+
             self.err = err
             os.remove(self.output_archive_path)
             return False
 
         except Exception as err:
-            log.error("Compress ({}) failed. Error: {}".format(self.title, err))
+            log.error(f"Compress ({self.title}) failed. Error: {err}")
             self.err = err
             return False
 

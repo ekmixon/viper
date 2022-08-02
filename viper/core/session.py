@@ -56,10 +56,7 @@ class Sessions(object):
 
     def is_set(self):
         # Check if the session has been opened or not.
-        if self.current:
-            return True
-        else:
-            return False
+        return bool(self.current)
 
     def switch(self, session):
         self.current = session
@@ -81,10 +78,7 @@ class Sessions(object):
 
             # Open a session on the given file.
             session.file = File(path)
-            # Try to lookup the file in the database. If it is already present
-            # we get its database ID, file name, and tags.
-            row = Database().find(key='sha256', value=session.file.sha256)
-            if row:
+            if row := Database().find(key='sha256', value=session.file.sha256):
                 session.file.id = row[0].id
                 session.file.name = row[0].name
                 session.file.tags = ', '.join(tag.to_dict()['tag'] for tag in row[0].tag)
@@ -98,11 +92,13 @@ class Sessions(object):
         if misp_event:
             if self.is_set() and path is None and self.current.file:
                 session.file = self.current.file
-            refresh = False
-            if (self.current is not None and self.current.misp_event is not None and
-                    self.current.misp_event.event.id is not None and
-                    self.current.misp_event.event.id == misp_event.event.id):
-                refresh = True
+            refresh = (
+                self.current is not None
+                and self.current.misp_event is not None
+                and self.current.misp_event.event.id is not None
+                and self.current.misp_event.event.id == misp_event.event.id
+            )
+
             session.misp_event = misp_event
             if refresh:
                 print_info("Session on MISP event {0} refreshed.".format(misp_event.event.id))

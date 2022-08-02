@@ -13,10 +13,7 @@ from viper.core.session import __sessions__
 
 def get_password_twice():
     password = getpass.getpass('Password: ')
-    if password == getpass.getpass('confirm Password: '):
-        return password
-    else:
-        return None
+    return password if password == getpass.getpass('confirm Password: ') else None
 
 
 class Export(Command):
@@ -81,12 +78,8 @@ class Export(Command):
         elif args.zip:
             cls = "ZipCompressor"
 
-        elif args.sevenzip:
-            cls = "SevenZipSystemCompressor"
         else:
-            cls = ""
-            self.log('error', "Not implemented".format())
-
+            cls = "SevenZipSystemCompressor"
         c = Compressor()
 
         if args.password:
@@ -98,7 +91,7 @@ class Export(Command):
                 res = c.compress(__sessions__.current.file.path, file_name=__sessions__.current.file.name,
                                  archive_path=store_path, cls_name=cls, password=_password)
             else:
-                self.log('warning', "ignoring password (not supported): {}".format(cls))
+                self.log('warning', f"ignoring password (not supported): {cls}")
                 res = c.compress(__sessions__.current.file.path, file_name=__sessions__.current.file.name,
                                  archive_path=store_path, cls_name=cls)
 

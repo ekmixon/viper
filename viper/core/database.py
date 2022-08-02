@@ -210,7 +210,7 @@ class Database:
         self.copied_id_sha256 = []
 
     def __repr__(self):
-        return "<{}>".format(self.__class__.__name__)
+        return f"<{self.__class__.__name__}>"
 
     def _connect_database(self, connection):
         if connection.startswith("mysql+pymysql"):
@@ -235,11 +235,7 @@ class Database:
         # comma-separated list of tags.
         if isinstance(tags, str):
             tags = tags.strip()
-            if ',' in tags:
-                tags = tags.split(',')
-            else:
-                tags = tags.split()
-
+            tags = tags.split(',') if ',' in tags else tags.split()
         for tag in tags:
             tag = tag.strip().lower()
             if tag == '':
@@ -260,8 +256,7 @@ class Database:
 
     def list_tags(self):
         session = self.Session()
-        rows = session.query(Tag).all()
-        return rows
+        return session.query(Tag).all()
 
     def list_tags_for_malware(self, sha256):
         session = self.Session()
@@ -296,8 +291,7 @@ class Database:
 
     def list_notes(self):
         session = self.Session()
-        rows = session.query(Note).all()
-        return rows
+        return session.query(Note).all()
 
     def add_note(self, sha256, title, body):
         session = self.Session()
@@ -428,24 +422,27 @@ class Database:
 
         # get malware from DB
         malware = session.query(Malware). \
-            options(subqueryload(Malware.analysis)). \
-            options(subqueryload(Malware.note)). \
-            options(subqueryload(Malware.parent)). \
-            options(subqueryload(Malware.tag)). \
-            get(id)
+                options(subqueryload(Malware.analysis)). \
+                options(subqueryload(Malware.note)). \
+                options(subqueryload(Malware.parent)). \
+                options(subqueryload(Malware.tag)). \
+                get(id)
 
         # get path and load file from disk
         malware_path = get_sample_path(malware.sha256)
         sample = File(malware_path)
         sample.name = malware.name
 
-        log.debug("Copying ID: {} ({}): from {} to {}".format(malware.id, malware.name, src_project, dst_project))
+        log.debug(
+            f"Copying ID: {malware.id} ({malware.name}): from {src_project} to {dst_project}"
+        )
+
         # switch to destination project, add to DB and store on disk
         __project__.open(dst_project)
         dst_db = Database()
         dst_db.add(sample)
         store_sample(sample)
-        print_success("Copied: {} ({})".format(malware.sha256, malware.name))
+        print_success(f"Copied: {malware.sha256} ({malware.name})")
 
         if copy_analysis:
             log.debug("copy analysis..")
@@ -462,10 +459,11 @@ class Database:
             dst_db.add_tags(malware.sha256, [x.tag for x in malware.tag])
 
         if copy_children:
-            children = session.query(Malware).filter(Malware.parent_id == malware.id).all()
-            if not children:
-                pass
-            else:
+            if (
+                children := session.query(Malware)
+                .filter(Malware.parent_id == malware.id)
+                .all()
+            ):
                 _parent_sha256 = malware.sha256  # set current recursion item as parent
                 for child in children:
                     self.copy(child.id,
@@ -473,7 +471,7 @@ class Database:
                               copy_analysis=copy_analysis, copy_notes=copy_notes, copy_tags=copy_tags,
                               copy_children=copy_children, _parent_sha256=_parent_sha256)
                     # restore parent-child relationships
-                    log.debug("add parent {} to child {}".format(_parent_sha256, child.sha256))
+                    log.debug(f"add parent {_parent_sha256} to child {child.sha256}")
                     if _parent_sha256:
                         dst_db.add_parent(child.sha256, _parent_sha256)
 
@@ -500,7 +498,7 @@ class Database:
             malware.name = name
             session.commit()
         except SQLAlchemyError as e:
-            print_error("Unable to rename file: {}".format(e))
+            print_error(f"Unable to rename file: {e}")
             session.rollback()
             return False
         finally:
@@ -570,11 +568,7 @@ class Database:
                 print_error("You need to specify a valid file name pattern (you can use wildcards)")
                 return None
 
-            if '*' in value:
-                value = value.replace('*', '%')
-            else:
-                value = '%{0}%'.format(value)
-
+            value = value.replace('*', '%') if '*' in value else '%{0}%'.format(value)
             rows = session.query(Malware).filter(Malware.name.like(value)).all()
         elif key == 'note':
             value = '%{0}%'.format(value)
@@ -595,15 +589,12 @@ class Database:
             print_error("Do not use &' and '|' at the same time.")
             return None
         if "|" in value:
-            filt = Malware.tag.any(Tag.tag.in_(value.lower().split("|")))
+            return Malware.tag.any(Tag.tag.in_(value.lower().split("|")))
         elif "&" in value:
-            tags = []
-            for tt in value.lower().split("&"):
-                tags.append(Malware.tag.any(Tag.tag == tt))
-            filt = and_(*tags)
+            tags = [Malware.tag.any(Tag.tag == tt) for tt in value.lower().split("&")]
+            return and_(*tags)
         else:
-            filt = Malware.tag.any(Tag.tag == value.lower())
-        return filt
+            return Malware.tag.any(Tag.tag == value.lower())
 
     def get_sample_count(self):
         session = self.Session()
@@ -638,24 +629,20 @@ class Database:
     def get_parent(self, malware_id):
         session = self.Session()
         malware = session.query(Malware).get(malware_id)
-        if not malware.parent_id:
-            return None
-        else:
-            parent = session.query(Malware).get(malware.parent_id)
-            return parent
+        return (
+            session.query(Malware).get(malware.parent_id)
+            if malware.parent_id
+            else None
+        )
 
     def get_children(self, parent_id):
         session = self.Session()
         children = session.query(Malware).filter(Malware.parent_id == parent_id).all()
-        child_samples = ''
-        for child in children:
-            child_samples += '{0},'.format(child.sha256)
-        return child_samples
+        return ''.join('{0},'.format(child.sha256) for child in children)
 
     def list_children(self, parent_id):
         session = self.Session()
-        children = session.query(Malware).filter(Malware.parent_id == parent_id).all()
-        return children
+        return session.query(Malware).filter(Malware.parent_id == parent_id).all()
 
     # Store Module / Cmd Output
     def add_analysis(self, sha256, cmd_line, results):
@@ -678,10 +665,8 @@ class Database:
 
     def get_analysis(self, analysis_id):
         session = self.Session()
-        analysis = session.query(Analysis).get(analysis_id)
-        return analysis
+        return session.query(Analysis).get(analysis_id)
 
     def list_analysis(self):
         session = self.Session()
-        rows = session.query(Analysis).all()
-        return rows
+        return session.query(Analysis).all()

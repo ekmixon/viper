@@ -110,7 +110,7 @@ class TestAPK:
         instance.run()
         out, err = capsys.readouterr()
 
-        assert re.search(r".*Package Name: {}.*".format(pkg_name), out)
+        assert re.search(f".*Package Name: {pkg_name}.*", out)
 
     @pytest.mark.parametrize("filename", ["hello-world.apk"])
     def test_dump_no_parameter(self, capsys, filename):

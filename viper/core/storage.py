@@ -51,7 +51,4 @@ def get_sample_path(sha256):
         sha256
     )
 
-    if not os.path.exists(path):
-        return None
-
-    return path
+    return path if os.path.exists(path) else None

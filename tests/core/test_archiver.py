@@ -113,9 +113,7 @@ class TestExtractor:
     def test_extract_input_file_special_chars(self, capsys, filename, rename_to):
         assert os.listdir(os.getcwd()) == []
         shutil.copy(os.path.join(FIXTURE_DIR, filename), rename_to)
-        if sys.version_info < (3, 0):  # py2
-            pass  # not working
-        else:  # py3+
+        if sys.version_info >= (3, 0):
             assert os.listdir(os.getcwd()) == [rename_to]
         instance = Extractor()
         res = instance.extract(archive_path=rename_to, output_dir=".")
@@ -123,9 +121,7 @@ class TestExtractor:
         assert instance.err is None
         assert len(os.listdir(os.getcwd())) == 2
         assert 'Mac.pdf' in os.listdir(os.getcwd())
-        if sys.version_info < (3, 0):  # py2
-            pass  # not working
-        else:  # py3+
+        if sys.version_info >= (3, 0):
             assert rename_to in os.listdir(os.getcwd())
 
     @pytest.mark.usefixtures("cleandir")

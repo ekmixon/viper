@@ -42,11 +42,7 @@ class Stats(Command):
 
         # Sort in to stats
         for item in items:
-            if isinstance(item.name, bytes):
-                # NOTE: In case you there are names stored as bytes in the database
-                name = item.name.decode()
-            else:
-                name = item.name
+            name = item.name.decode() if isinstance(item.name, bytes) else item.name
             if '.' in name:
                 ext = name.split('.')
                 extension_dict[ext[-1]] += 1
@@ -81,26 +77,34 @@ class Stats(Command):
         # Extension
         self.log('info', "{0}Extensions".format(prefix))
         header = ['Ext', 'Count']
-        rows = []
+        rows = [
+            [k, extension_dict[k]]
+            for k in sorted(extension_dict, key=extension_dict.get, reverse=True)[
+                :counter
+            ]
+        ]
 
-        for k in sorted(extension_dict, key=extension_dict.get, reverse=True)[:counter]:
-            rows.append([k, extension_dict[k]])
+
         self.log('table', dict(header=header, rows=rows))
 
         # Mimes
         self.log('info', "{0}Mime Types".format(prefix))
         header = ['Mime', 'Count']
-        rows = []
-        for k in sorted(mime_dict, key=mime_dict.get, reverse=True)[:counter]:
-            rows.append([k, mime_dict[k]])
+        rows = [
+            [k, mime_dict[k]]
+            for k in sorted(mime_dict, key=mime_dict.get, reverse=True)[:counter]
+        ]
+
         self.log('table', dict(header=header, rows=rows))
 
         # Tags
         self.log('info', "{0}Tags".format(prefix))
         header = ['Tag', 'Count']
-        rows = []
-        for k in sorted(tags_dict, key=tags_dict.get, reverse=True)[:counter]:
-            rows.append([k, tags_dict[k]])
+        rows = [
+            [k, tags_dict[k]]
+            for k in sorted(tags_dict, key=tags_dict.get, reverse=True)[:counter]
+        ]
+
         self.log('table', dict(header=header, rows=rows))
 
         # Size

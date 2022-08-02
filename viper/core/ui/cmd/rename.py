@@ -26,7 +26,7 @@ class Rename(Command):
                 self.log('error', "The opened file does not have an ID, have you stored it yet?")
                 return
 
-            self.log('info', "Current name is: {}".format(bold(__sessions__.current.file.name)))
+            self.log('info', f"Current name is: {bold(__sessions__.current.file.name)}")
 
             new_name = input("New name: ")
             if not new_name:

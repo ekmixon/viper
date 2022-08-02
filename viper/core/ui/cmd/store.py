@@ -101,27 +101,31 @@ class Store(Command):
                         if not os.path.exists(file_path):
                             continue
                         # Check if file is not zero.
-                        if not os.path.getsize(file_path) > 0:
+                        if os.path.getsize(file_path) <= 0:
                             continue
 
                         # Check if the file name matches the provided pattern.
-                        if args.file_name:
-                            if not fnmatch.fnmatch(file_name, args.file_name):
-                                # self.log('warning', "Skip, file \"{0}\" doesn't match the file name pattern".format(file_path))
-                                continue
+                        if args.file_name and not fnmatch.fnmatch(
+                            file_name, args.file_name
+                        ):
+                            # self.log('warning', "Skip, file \"{0}\" doesn't match the file name pattern".format(file_path))
+                            continue
 
                         # Check if the file type matches the provided pattern.
-                        if args.file_type:
-                            if args.file_type not in File(file_path).type:
-                                # self.log('warning', "Skip, file \"{0}\" doesn't match the file type".format(file_path))
-                                continue
+                        if (
+                            args.file_type
+                            and args.file_type not in File(file_path).type
+                        ):
+                            # self.log('warning', "Skip, file \"{0}\" doesn't match the file type".format(file_path))
+                            continue
 
                         # Check if file exceeds maximum size limit.
-                        if args.file_size:
-                            # Obtain file size.
-                            if os.path.getsize(file_path) > args.file_size:
-                                self.log('warning', "Skip, file \"{0}\" is too big".format(file_path))
-                                continue
+                        if (
+                            args.file_size
+                            and os.path.getsize(file_path) > args.file_size
+                        ):
+                            self.log('warning', "Skip, file \"{0}\" is too big".format(file_path))
+                            continue
 
                         file_obj = File(file_path)
 
@@ -134,7 +138,6 @@ class Store(Command):
 
             else:
                 self.log('error', "You specified an invalid folder: {0}".format(args.folder))
-        # Otherwise we try to store the currently opened file, if there is any.
         else:
             if __sessions__.is_set():
                 if __sessions__.current.file.size == 0:

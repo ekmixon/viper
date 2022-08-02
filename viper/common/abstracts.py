@@ -85,14 +85,14 @@ def get_argparse_parser_actions(parser):
     for parser_action in parser_actions:
         if parser_action[1]:
             for action in parser_action[1]:
-                ret.update({action: parser_action[2]})
+                ret[action] = parser_action[2]
         if isinstance(parser_action[0], list):
             for option in parser_action[0]:
                 # ignore short options (only add --help and not -h)
                 if option.startswith("--"):
-                    ret.update({option: parser_action[2]})
+                    ret[option] = parser_action[2]
         else:
-            ret.update({parser_action[0]: parser_action[2]})
+            ret[parser_action[0]] = parser_action[2]
 
     return ret
 
@@ -104,7 +104,7 @@ def get_argparse_subparser_actions(parser):
         for subparser_action in parser._subparsers._actions:
             if isinstance(subparser_action, argparse._SubParsersAction):
                 for item in list(subparser_action.choices):
-                    ret.update({item: get_argparse_parser_actions(subparser_action.choices[item])})
+                    ret[item] = get_argparse_parser_actions(subparser_action.choices[item])
 
     except AttributeError:
         pass

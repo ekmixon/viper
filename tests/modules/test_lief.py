@@ -284,7 +284,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*Entropy :.*"),
     ])
-    def test_entropy_oat(soat, capsys, filename, expected):
+    def test_entropy_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--entropy"])
@@ -307,7 +307,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*No interpreter found.*"),
     ])
-    def test_interpreter_oat(soat, capsys, filename, expected):
+    def test_interpreter_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--interpreter"])
@@ -318,7 +318,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*No dynamic library found.*"),
     ])
-    def test_dynamic_oat(soat, capsys, filename, expected):
+    def test_dynamic_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--dynamic"])
@@ -330,7 +330,7 @@ class TestLIEF:
         ("sample.elf", r".*Dynamic libraries :.*"),
         ("sample2.elf", r".*Dynamic libraries :.*"),
     ])
-    def test_dynamic_elf(soat, capsys, filename, expected):
+    def test_dynamic_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--dynamic"])
@@ -341,7 +341,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*Dynamic libraries :.*"),
     ])
-    def test_dynamic_pe(soat, capsys, filename, expected):
+    def test_dynamic_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--dynamic"])
@@ -352,7 +352,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*Dynamic libraries :.*"),
     ])
-    def test_dynamic_macho(soat, capsys, filename, expected):
+    def test_dynamic_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--dynamic"])
@@ -363,7 +363,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*Static and dynamic symbols.*"),
     ])
-    def test_symbols_oat(soat, capsys, filename, expected):
+    def test_symbols_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--symbols"])
@@ -375,7 +375,7 @@ class TestLIEF:
         ("sample.elf", r".*Static and dynamic symbols.*"),
         ("sample2.elf", r".*Static and dynamic symbols.*"),
     ])
-    def test_symbols_elf(soat, capsys, filename, expected):
+    def test_symbols_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--symbols"])
@@ -386,7 +386,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*MachO symbols.*"),
     ])
-    def test_symbols_macho(soat, capsys, filename, expected):
+    def test_symbols_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--symbols"])
@@ -397,7 +397,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*PE dlls :.*"),
     ])
-    def test_dlls_pe(soat, capsys, filename, expected):
+    def test_dlls_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--dlls"])
@@ -408,7 +408,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*PE imports.*"),
     ])
-    def test_imports_pe(soat, capsys, filename, expected):
+    def test_imports_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--imports"])
@@ -419,7 +419,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*Imphash :.*"),
     ])
-    def test_imphash_pe(soat, capsys, filename, expected):
+    def test_imphash_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--imphash"])
@@ -430,7 +430,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*No GNU hash found.*"),
     ])
-    def test_gnu_hash_oat(soat, capsys, filename, expected):
+    def test_gnu_hash_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--gnu_hash"])
@@ -442,7 +442,7 @@ class TestLIEF:
         ("sample.elf", r".*GNU hash :.*"),
         ("sample2.elf", r".*GNU hash :.*"),
     ])
-    def test_gnu_hash_elf(soat, capsys, filename, expected):
+    def test_gnu_hash_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--gnu_hash"])
@@ -453,7 +453,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*Compilation date :.*"),
     ])
-    def test_compiledate_pe(soat, capsys, filename, expected):
+    def test_compiledate_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--compiledate"])
@@ -464,7 +464,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*The binary has been stripped.*"),
     ])
-    def test_strip_oat(soat, capsys, filename, expected):
+    def test_strip_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--strip"])
@@ -476,7 +476,7 @@ class TestLIEF:
         ("sample.elf", r".*The binary has been stripped.*"),
         ("sample2.elf", r".*The binary has been stripped.*"),
     ])
-    def test_strip_elf(soat, capsys, filename, expected):
+    def test_strip_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--strip"])
@@ -488,7 +488,7 @@ class TestLIEF:
         ("sample.elf", r".*File successfully saved.*"),
         ("sample2.elf", r".*File successfully saved.*"),
     ])
-    def test_write_elf_1(soat, capsys, filename, expected):
+    def test_write_elf_1(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         if os.path.exists("/tmp/viper_test"):
@@ -503,7 +503,7 @@ class TestLIEF:
         ("sample.elf", r".*Please enter a file name.*"),
         ("sample2.elf", r".*Please enter a file name.*"),
     ])
-    def test_write_elf_2(soat, capsys, filename, expected):
+    def test_write_elf_2(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--write", "/tmp/"])
@@ -515,7 +515,7 @@ class TestLIEF:
         ("sample.elf", r".*Cannot write into folder.*"),
         ("sample2.elf", r".*Cannot write into folder.*"),
     ])
-    def test_write_elf_3(soat, capsys, filename, expected):
+    def test_write_elf_3(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--write", "/inexistentfolder"])
@@ -527,7 +527,7 @@ class TestLIEF:
         ("sample.elf", r".*File already exists.*"),
         ("sample2.elf", r".*File already exists.*"),
     ])
-    def test_write_elf_4(soat, capsys, filename, expected):
+    def test_write_elf_4(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         with open("/tmp/test", 'w') as f:
             f.write('')
@@ -542,7 +542,7 @@ class TestLIEF:
         ("sample.elf", r".*Notes :.*"),
         ("sample2.elf", r".*Notes :.*"),
     ])
-    def test_notes_elf(soat, capsys, filename, expected):
+    def test_notes_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--notes"])
@@ -553,7 +553,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.dex", r".*DEX map items.*"),
     ])
-    def test_map_dex(soat, capsys, filename, expected):
+    def test_map_dex(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["dex", "--map"])
@@ -564,7 +564,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.art", r".*ART header.*"),
     ])
-    def test_header_art(soat, capsys, filename, expected):
+    def test_header_art(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["art", "--header"])
@@ -575,7 +575,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.vdex", r".*VDEX header.*"),
     ])
-    def test_header_vdex(soat, capsys, filename, expected):
+    def test_header_vdex(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["vdex", "--header"])
@@ -586,7 +586,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.dex", r".*DEX header.*"),
     ])
-    def test_header_dex(soat, capsys, filename, expected):
+    def test_header_dex(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["dex", "--header"])
@@ -597,7 +597,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.oat", r".*OAT header.*"),
     ])
-    def test_header_oat(soat, capsys, filename, expected):
+    def test_header_oat(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["oat", "--header"])
@@ -608,7 +608,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*MachO header.*"),
     ])
-    def test_header_macho(soat, capsys, filename, expected):
+    def test_header_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--header"])
@@ -619,7 +619,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.pe", r".*PE header.*"),
     ])
-    def test_header_pe(soat, capsys, filename, expected):
+    def test_header_pe(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["pe", "--header"])
@@ -631,7 +631,7 @@ class TestLIEF:
         ("sample.elf", r".*ELF header.*"),
         ("sample2.elf", r".*ELF header.*"),
     ])
-    def test_header_elf(soat, capsys, filename, expected):
+    def test_header_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--header"])
@@ -642,7 +642,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*MachO code signature :.*"),
     ])
-    def test_codesignature_macho(soat, capsys, filename, expected):
+    def test_codesignature_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--codesignature"])
@@ -654,7 +654,7 @@ class TestLIEF:
         ("sample.elf", r".*Exported functions.*"),
         ("sample2.elf", r".*Exported functions.*"),
     ])
-    def test_exportedfunctions_elf(soat, capsys, filename, expected):
+    def test_exportedfunctions_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--expfunctions"])
@@ -666,7 +666,7 @@ class TestLIEF:
         ("sample.elf", r".*Exported symbols.*"),
         ("sample2.elf", r".*Exported symbols.*"),
     ])
-    def test_exportedsymbols_elf(soat, capsys, filename, expected):
+    def test_exportedsymbols_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--expsymbols"])
@@ -677,7 +677,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*No exported symbol found.*"),
     ])
-    def test_exportedsymbols_macho(soat, capsys, filename, expected):
+    def test_exportedsymbols_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--expsymbols"])
@@ -689,7 +689,7 @@ class TestLIEF:
         ("sample.elf", r".*Imported functions.*"),
         ("sample2.elf", r".*Imported functions.*"),
     ])
-    def test_importedfunctions_elf(soat, capsys, filename, expected):
+    def test_importedfunctions_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--impfunctions"])
@@ -701,7 +701,7 @@ class TestLIEF:
         ("sample.elf", r".*Imported symbols.*"),
         ("sample2.elf", r".*Imported symbols.*"),
     ])
-    def test_importedsymbols_elf(soat, capsys, filename, expected):
+    def test_importedsymbols_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--impsymbols"])
@@ -712,7 +712,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*MachO imported symbols.*"),
     ])
-    def test_importedsymbols_macho(soat, capsys, filename, expected):
+    def test_importedsymbols_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--impsymbols"])
@@ -723,7 +723,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample1.macho", r".*Source version :.*"),
     ])
-    def test_sourceversion_macho(soat, capsys, filename, expected):
+    def test_sourceversion_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--sourceversion"])
@@ -734,7 +734,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*No sub-framework found.*"),
     ])
-    def test_subFramework_macho(soat, capsys, filename, expected):
+    def test_subFramework_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--subframework"])
@@ -745,7 +745,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*Uuid :.*"),
     ])
-    def test_uuid_macho(soat, capsys, filename, expected):
+    def test_uuid_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--uuid"])
@@ -756,7 +756,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample1.macho", r".*Data in code :.*"),
     ])
-    def test_dataincode_macho(soat, capsys, filename, expected):
+    def test_dataincode_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--dataincode"])
@@ -767,7 +767,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample1.macho", r".*Main command :.*"),
     ])
-    def test_maincommand_macho(soat, capsys, filename, expected):
+    def test_maincommand_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--maincommand"])
@@ -778,7 +778,7 @@ class TestLIEF:
     @pytest.mark.parametrize("filename, expected", [
         ("sample.macho", r".*MachO commands :.*"),
     ])
-    def test_commands_macho(soat, capsys, filename, expected):
+    def test_commands_macho(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["macho", "--commands"])
@@ -856,7 +856,7 @@ class TestLIEF:
         ("sample.elf", r".*No object relocation found.*"),
         ("sample2.elf", r".*No object relocation found.*"),
     ])
-    def test_objectrelocations_elf(soat, capsys, filename, expected):
+    def test_objectrelocations_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--objectrelocations"])
@@ -868,7 +868,7 @@ class TestLIEF:
         ("sample.elf", r".*Relocations :.*"),
         ("sample2.elf", r".*Relocations :.*"),
     ])
-    def test_relocations_elf(soat, capsys, filename, expected):
+    def test_relocations_elf(self, capsys, filename, expected):
         __sessions__.new(os.path.join(FIXTURE_DIR, filename))
         instance = lief()
         instance.set_commandline(["elf", "--relocations"])

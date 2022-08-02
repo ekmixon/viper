@@ -69,7 +69,7 @@ class TestPE:
         lines = out.split("\n")
         assert re.search(r".*Session opened*", lines[0])
         assert re.search(r".*Compile Time*", lines[1])
-        assert re.search(r".*{}*".format(expected), lines[1])
+        assert re.search(f".*{expected}*", lines[1])
         assert instance.result_compile_time == expected
 
     @pytest.mark.parametrize("filename, expected", [
@@ -99,7 +99,7 @@ class TestPE:
         instance.run()
         out, err = capsys.readouterr()
 
-        assert re.search(r".*{}*".format(expected), out)
+        assert re.search(f".*{expected}*", out)
 
     @pytest.mark.parametrize("filename, expected", [("cmd.exe", r".*Probable language:.*C.*")])
     def test_language(self, capsys, filename, expected):

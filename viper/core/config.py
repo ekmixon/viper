@@ -90,33 +90,42 @@ class Config:
         # check global config
         if self.http_client.https_proxy is None and self.http_client.no_proxy is None:
             log.debug("Global: Proxy not configured (using ENV or none)")
+        elif self.http_client.https_proxy:
+            log.debug(
+                f"Global: Proxy enabled: {self.http_client.https_proxy} (no: {self.http_client.no_proxy})"
+            )
+
+            _proxies = {"http": self.http_client.https_proxy,
+                        "https": self.http_client.https_proxy,
+                        "no": self.http_client.no_proxy}
         else:
-            if self.http_client.https_proxy:
-                log.debug("Global: Proxy enabled: {} (no: {})".format(self.http_client.https_proxy,
-                                                                      self.http_client.no_proxy))
-                _proxies = {"http": self.http_client.https_proxy,
-                            "https": self.http_client.https_proxy,
-                            "no": self.http_client.no_proxy}
-            else:
-                log.debug("Global: Proxy disabled (overridden)")
-                _proxies = {"http": "", "https": "", "no": None}
+            log.debug("Global: Proxy disabled (overridden)")
+            _proxies = {"http": "", "https": "", "no": None}
 
         if self.http_client.tls_verify is None:
             log.debug("Global: TLS verify not configured")
-        else:
-            if not self.http_client.tls_verify:
-                log.debug("Global: TLS verify disabled")
-                _verify = False
-            else:
-                log.debug("Global: TLS verify enabled")
+        elif self.http_client.tls_verify:
+            log.debug("Global: TLS verify enabled")
 
-        if _verify and self.http_client.tls_ca_bundle is not None:
-            if self.http_client.tls_ca_bundle:
-                log.debug("Global: Verify (CA_BUNDLE) set to: {}".format(self.http_client.tls_ca_bundle))
-                _verify = self.http_client.tls_ca_bundle
+        else:
+            log.debug("Global: TLS verify disabled")
+            _verify = False
+        if (
+            _verify
+            and self.http_client.tls_ca_bundle is not None
+            and self.http_client.tls_ca_bundle
+        ):
+            log.debug(
+                f"Global: Verify (CA_BUNDLE) set to: {self.http_client.tls_ca_bundle}"
+            )
+
+            _verify = self.http_client.tls_ca_bundle
 
         if self.http_client.tls_client_cert:
-            log.debug("Global: Client certificate enabled: {}".format(self.http_client.tls_client_cert))
+            log.debug(
+                f"Global: Client certificate enabled: {self.http_client.tls_client_cert}"
+            )
+
             _cert = self.http_client.tls_client_cert
         else:
             log.debug("Global: Client certificate not configured")
@@ -131,34 +140,38 @@ class Config:
                 if _proxies is None:
                     log.debug("Section: Proxy not configured (using ENV or none)")
                 else:
-                    log.debug("Section: Proxy not configured (using Global: {})".format(_proxies))
+                    log.debug(f"Section: Proxy not configured (using Global: {_proxies})")
+            elif section.https_proxy:
+                log.debug(
+                    f"Section: Proxy enabled: {section.https_proxy} (no: {section.no_proxy})"
+                )
+
+                _proxies = {"http": section.https_proxy,
+                            "https": section.https_proxy,
+                            "no": section.no_proxy}
             else:
-                if section.https_proxy:
-                    log.debug("Section: Proxy enabled: {} (no: {})".format(section.https_proxy, section.no_proxy))
-                    _proxies = {"http": section.https_proxy,
-                                "https": section.https_proxy,
-                                "no": section.no_proxy}
-                else:
-                    log.debug("Section: Proxy disabled (overridden)")
-                    _proxies = {"http": "", "https": "", "no": None}
+                log.debug("Section: Proxy disabled (overridden)")
+                _proxies = {"http": "", "https": "", "no": None}
 
             if section.tls_verify is None:
                 log.debug("Section: TLS verify not configured")
-            else:
-                if not section.tls_verify:
-                    log.debug("Section: TLS verify disabled")
-                    _verify = False
-                else:
-                    log.debug("Section: TLS verify enabled")
-                    _verify = True
+            elif section.tls_verify:
+                log.debug("Section: TLS verify enabled")
+                _verify = True
 
-            if _verify and section.tls_ca_bundle is not None:
-                if section.tls_ca_bundle:
-                    log.debug("Section: Verify (CA_BUNDLE) set to: {}".format(section.tls_ca_bundle))
-                    _verify = section.tls_ca_bundle
+            else:
+                log.debug("Section: TLS verify disabled")
+                _verify = False
+            if (
+                _verify
+                and section.tls_ca_bundle is not None
+                and section.tls_ca_bundle
+            ):
+                log.debug(f"Section: Verify (CA_BUNDLE) set to: {section.tls_ca_bundle}")
+                _verify = section.tls_ca_bundle
 
             if section.tls_client_cert:
-                log.debug("Section: Client certificate enabled: {}".format(section.tls_client_cert))
+                log.debug(f"Section: Client certificate enabled: {section.tls_client_cert}")
                 _cert = section.tls_client_cert
             else:
                 log.debug("Section: Client certificate not configured")
@@ -175,15 +188,14 @@ class Config:
         try:
             return getattr(self, section)
         except AttributeError as e:
-            log.warning("unable to fetch section: {}\n{}".format(section, e))
+            log.warning(f"unable to fetch section: {section}\n{e}")
             print(e)
 
     def __getattr__(self, attr):
-        log.warning("The section {} is missing in the config file.".format(attr))
+        log.warning(f"The section {attr} is missing in the config file.")
         return None
 
 
 __config__ = Config()
 
-console_output = {}
-console_output["filename"] = False
+console_output = {"filename": False}

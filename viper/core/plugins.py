@@ -20,10 +20,10 @@ def load_commands():
     # Import modules package.
     import viper.core.ui.cmd as cmd
 
-    plugins = dict()
+    plugins = {}
 
     # Walk recursively through all cmd and packages.
-    for loader, cmd_name, ispkg in pkgutil.walk_packages(cmd.__path__, cmd.__name__ + '.'):
+    for loader, cmd_name, ispkg in pkgutil.walk_packages(cmd.__path__, f'{cmd.__name__}.'):
         # If current item is a package, skip.
         if ispkg:
             continue
@@ -38,14 +38,16 @@ def load_commands():
         # Walk through all members of currently imported cmd.
         for member_name, member_object in inspect.getmembers(cmd_module):
             # Check if current member is a class.
-            if inspect.isclass(member_object):
-                # Yield the class if it's a subclass of Command.
-                if issubclass(member_object, Command) and member_object is not Command:
-                    instance = member_object()
-                    plugins[member_object.cmd] = dict(obj=instance.run,
-                                                      description=instance.description,
-                                                      parser_args=get_argparse_parser_actions(instance.parser),
-                                                      fs_path_completion=instance.fs_path_completion)
+            if (
+                inspect.isclass(member_object)
+                and issubclass(member_object, Command)
+                and member_object is not Command
+            ):
+                instance = member_object()
+                plugins[member_object.cmd] = dict(obj=instance.run,
+                                                  description=instance.description,
+                                                  parser_args=get_argparse_parser_actions(instance.parser),
+                                                  fs_path_completion=instance.fs_path_completion)
 
     return plugins
 
@@ -57,11 +59,11 @@ def load_modules():
     try:
         import modules
     except ImportError:
-        return dict()
+        return {}
     else:
-        plugins = dict()
+        plugins = {}
         # Walk recursively through all modules and packages.
-        for loader, module_name, ispkg in pkgutil.walk_packages(modules.__path__, modules.__name__ + '.'):
+        for loader, module_name, ispkg in pkgutil.walk_packages(modules.__path__, f'{modules.__name__}.'):
             # If current item is a package, skip.
             if ispkg:
                 continue
@@ -75,14 +77,16 @@ def load_modules():
             # Walk through all members of currently imported modules.
             for member_name, member_object in inspect.getmembers(module):
                 # Check if current member is a class.
-                if inspect.isclass(member_object):
-                    # Yield the class if it's a subclass of Module.
-                    if issubclass(member_object, Module) and member_object is not Module:
-                        plugins[member_object.cmd] = dict(obj=member_object,
-                                                          description=member_object.description,
-                                                          categories=getattr(member_object, "categories", []),
-                                                          parser_args=get_argparse_parser_actions(member_object().parser),
-                                                          subparser_args=get_argparse_subparser_actions(member_object().parser))
+                if (
+                    inspect.isclass(member_object)
+                    and issubclass(member_object, Module)
+                    and member_object is not Module
+                ):
+                    plugins[member_object.cmd] = dict(obj=member_object,
+                                                      description=member_object.description,
+                                                      categories=getattr(member_object, "categories", []),
+                                                      parser_args=get_argparse_parser_actions(member_object().parser),
+                                                      subparser_args=get_argparse_subparser_actions(member_object().parser))
 
         return plugins
 

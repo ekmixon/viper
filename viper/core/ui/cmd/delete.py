@@ -32,11 +32,11 @@ class Delete(Command):
 
         while True:
             choice = input("Are you sure? It can't be reverted! [y/n] ")
-            if choice == 'y':
-                break
-            elif choice == 'n':
+            if choice == 'n':
                 return
 
+            elif choice == 'y':
+                break
         db = Database()
 
         if args.all:
@@ -48,30 +48,28 @@ class Delete(Command):
                 db.delete_file(sample.id)
                 os.remove(get_sample_path(sample.sha256))
 
-            self.log('info', "Deleted a total of {} files.".format(len(samples)))
+            self.log('info', f"Deleted a total of {len(samples)} files.")
         elif args.find:
             if __sessions__.find:
                 samples = __sessions__.find
                 for sample in samples:
                     db.delete_file(sample.id)
                     os.remove(get_sample_path(sample.sha256))
-                self.log('info', "Deleted {} files.".format(len(samples)))
+                self.log('info', f"Deleted {len(samples)} files.")
             else:
                 self.log('error', "No find result")
 
+        elif __sessions__.is_set():
+            if rows := db.find('sha256', __sessions__.current.file.sha256):
+                malware_id = rows[0].id
+                if db.delete_file(malware_id):
+                    self.log("success", "File deleted")
+                else:
+                    self.log('error', "Unable to delete file")
+
+            os.remove(__sessions__.current.file.path)
+            __sessions__.close()
+
+            self.log('info', "Deleted opened file.")
         else:
-            if __sessions__.is_set():
-                rows = db.find('sha256', __sessions__.current.file.sha256)
-                if rows:
-                    malware_id = rows[0].id
-                    if db.delete_file(malware_id):
-                        self.log("success", "File deleted")
-                    else:
-                        self.log('error', "Unable to delete file")
-
-                os.remove(__sessions__.current.file.path)
-                __sessions__.close()
-
-                self.log('info', "Deleted opened file.")
-            else:
-                self.log('error', "No session open, and no --all argument. Nothing to delete.")
+            self.log('error', "No session open, and no --all argument. Nothing to delete.")

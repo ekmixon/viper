@@ -40,7 +40,11 @@ class UpdateModules(Command):
 
             # Check whether previous command executed successfully
             if p.returncode != 0:
-                self.log("error", "Module download failed. Returncode of `git clone ...`: " + str(p.returncode))
+                self.log(
+                    "error",
+                    f"Module download failed. Returncode of `git clone ...`: {str(p.returncode)}",
+                )
+
                 return
 
         # Initialize submodules.

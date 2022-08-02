@@ -38,10 +38,9 @@ class Projects(Command):
         except SystemExit:
             return
 
-        if __config__.get("paths").storage_path:
-            base_path = __config__.get("paths").storage_path
-        else:
-            base_path = os.path.join(expanduser("~"), ".viper")
+        base_path = __config__.get("paths").storage_path or os.path.join(
+            expanduser("~"), ".viper"
+        )
 
         projects_path = os.path.join(base_path, "projects")
 
@@ -99,10 +98,18 @@ class Projects(Command):
 
             project_path = os.path.join(projects_path, project_to_delete)
             if not os.path.exists(project_path):
-                self.log("error", "The folder for project \"{}\" does not seem to exist".format(project_to_delete))
+                self.log(
+                    "error",
+                    f'The folder for project \"{project_to_delete}\" does not seem to exist',
+                )
+
                 return
 
-            self.log("info", "You asked to delete project with name \"{}\" located at \"{}\"".format(project_to_delete, project_path))
+            self.log(
+                "info",
+                f'You asked to delete project with name \"{project_to_delete}\" located at \"{project_path}\"',
+            )
+
 
             confirm = input("Are you sure you want to delete the project? You will permanently delete all associated files! [y/N] ")
             if confirm.lower() != "y":
@@ -111,9 +118,9 @@ class Projects(Command):
             try:
                 shutil.rmtree(project_path)
             except Exception as e:
-                self.log("error", "Something failed while trying to delete folder: {}".format(e))
+                self.log("error", f"Something failed while trying to delete folder: {e}")
                 return
 
-            self.log("info", "Project \"{}\" was delete successfully".format(project_to_delete))
+            self.log("info", f'Project \"{project_to_delete}\" was delete successfully')
         else:
             self.log("info", self.parser.print_usage())

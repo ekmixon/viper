@@ -16,13 +16,10 @@ cfg = __config__
 
 def parse_commands(data):
     root = ''
-    args = []
     words = data.split()
     root = words[0]
 
-    if len(words) > 1:
-        args = words[1:]
-
+    args = words[1:] if len(words) > 1 else []
     return root, args
 
 

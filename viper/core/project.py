@@ -45,7 +45,10 @@ class Project(object):
 
     def open(self, name):
         if not os.path.exists(self.base_path):
-            raise Exception("The local storage folder does not exist at path {}".format(self.base_path))
+            raise Exception(
+                f"The local storage folder does not exist at path {self.base_path}"
+            )
+
 
         if name == 'default':
             path = self.base_path
@@ -64,10 +67,7 @@ class Project(object):
             self.name = None
 
     def get_path(self):
-        if self.path and os.path.exists(self.path):
-            return self.path
-        else:
-            return self.path
+        return self.path if self.path and os.path.exists(self.path) else self.path
 
     def get_projects_path(self):
         return os.path.join(self.base_path, 'projects')
@@ -86,9 +86,7 @@ def get_project_list(exclude_default=False):
             if os.path.isdir(project_path):
                 project_list.append(project)
 
-    if exclude_default:
-        pass
-    else:
+    if not exclude_default:
         project_list.append("default")
 
     return sorted(project_list)

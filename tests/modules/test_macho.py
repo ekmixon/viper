@@ -73,8 +73,8 @@ class Testmacho:
 
         lines = out.split("\n")
         assert re.search(r".*Headers", lines[1])
-        assert re.search(r".*{}.*".format(magic), out)
-        assert re.search(r".*{}.*".format(cputype), out)
+        assert re.search(f".*{magic}.*", out)
+        assert re.search(f".*{cputype}.*", out)
 
     @pytest.mark.parametrize("filename,amount_segments", [
         ("MachO-OSX-x86-ls", 4)
@@ -88,7 +88,7 @@ class Testmacho:
         out, err = capsys.readouterr()
 
         lines = out.split("\n")
-        assert re.search(r".*Segments \({}\)".format(amount_segments), lines[1])
+        assert re.search(f".*Segments \({amount_segments}\)", lines[1])
 
     @pytest.mark.parametrize("filename,amount_commands", [
         ("MachO-OSX-x86-ls", 12),
@@ -102,7 +102,7 @@ class Testmacho:
         out, err = capsys.readouterr()
 
         lines = out.split("\n")
-        assert re.search(r".*Load Commands \({}\)".format(amount_commands), lines[1])
+        assert re.search(f".*Load Commands \({amount_commands}\)", lines[1])
 
     @pytest.mark.parametrize("filename", ["MachO-OSX-x86-ls"])
     def test_all(self, capsys, filename):

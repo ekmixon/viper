@@ -46,14 +46,15 @@ def logo():
     except Exception:
         sys.exit()
 
-    if __project__.name:
-        name = __project__.name
-    else:
-        name = "default"
+    name = __project__.name or "default"
+    print(
+        (
+            magenta(f"You have {bold(count)}")
+            + magenta(f" files in your {bold(name)}")
+        )
+        + magenta(" repository.")
+    )
 
-    print(magenta("You have " + bold(count)) +
-          magenta(" files in your " + bold(name)) +
-          magenta(" repository."))
 
     modules_count = len(__modules__)
     if modules_count == 0:
@@ -62,8 +63,12 @@ def logo():
         print(red("If you wish to download community modules from GitHub run:"))
         print(red(bold("    update-modules")))
     else:
-        print(magenta("You have " + bold(modules_count)) +
-              magenta(" modules installed."))
+        print(
+            (
+                magenta(f"You have {bold(modules_count)}")
+                + magenta(" modules installed.")
+            )
+        )
 
 
 class Console(object):
@@ -75,17 +80,12 @@ class Console(object):
 
     def parse(self, data):
         root = ""
-        args = []
-
         # Split words by white space.
         words = data.split()
         # First word is the root command.
         root = words[0]
 
-        # If there are more words, populate the arguments list.
-        if len(words) > 1:
-            args = words[1:]
-
+        args = words[1:] if len(words) > 1 else []
         return (root, args)
 
     def keywords(self, data):
@@ -122,53 +122,53 @@ class Console(object):
             line = " ".join(readline.get_line_buffer().split())
             words = line.split(" ")  # split words; e.g. store -f /tmp -> ["store", "-f", "/tmp"]
 
-            if words[0] in [i for i in self.cmd.commands]:
+            if words[0] in list(self.cmd.commands):
                 # handle completion for commands
 
                 # enable filesystem path completion for certain commands (e.g. export, store)
                 if words[0] in [x for x in self.cmd.commands if self.cmd.commands[x]["fs_path_completion"]]:
                     fs_path_completion = True
 
-                options = [key for key in self.cmd.commands[words[0]]["parser_args"]]
+                options = list(self.cmd.commands[words[0]]["parser_args"])
 
                 # enable tab completion for projects --switch
-                if words[0] == "projects":
-                    if "--switch" in words or "-s" in words:
-                        options += get_project_list()
+                if words[0] == "projects" and (
+                    "--switch" in words or "-s" in words
+                ):
+                    options += get_project_list()
 
-                        # enable tab completion for copy (list projects)
                 if words[0] == "copy":
                     options += get_project_list()
 
                 completions = [i for i in options if i.startswith(text) and i not in words]
 
-            elif words[0] in [i for i in __modules__]:
+            elif words[0] in list(__modules__):
                 # handle completion for modules
                 if len(words) == 1:
                     # only the module name is give so far - present all args and the subparsers (if any)
-                    options = [key for key in __modules__[words[0]]["parser_args"]]
-                    options += [key for key in __modules__[words[0]]["subparser_args"]]
+                    options = list(__modules__[words[0]]["parser_args"])
+                    options += list(__modules__[words[0]]["subparser_args"])
 
                 elif len(words) == 2:
                     # 1 complete word and one either complete or incomplete that specifies the subparser or an arg
                     if words[1] in list(__modules__[words[0]]["parser_args"]):
                         # full arg for a module is given
-                        options = [key for key in __modules__[words[0]]["parser_args"]]
+                        options = list(__modules__[words[0]]["parser_args"])
 
                     elif words[1] in list(__modules__[words[0]]["subparser_args"]):
                         # subparser is specified - get all subparser args
-                        options = [key for key in __modules__[words[0]]["subparser_args"][words[1]]]
+                        options = list(__modules__[words[0]]["subparser_args"][words[1]])
 
                     else:
-                        options = [key for key in __modules__[words[0]]["parser_args"]]
-                        options += [key for key in __modules__[words[0]]["subparser_args"]]
+                        options = list(__modules__[words[0]]["parser_args"])
+                        options += list(__modules__[words[0]]["subparser_args"])
 
                 else:  # more that 2 words
                     if words[1] in list(__modules__[words[0]]["subparser_args"]):
                         # subparser is specified - get all subparser args
-                        options = [key for key in __modules__[words[0]]["subparser_args"][words[1]]]
+                        options = list(__modules__[words[0]]["subparser_args"][words[1]])
                     else:
-                        options = [key for key in __modules__[words[0]]["parser_args"]]
+                        options = list(__modules__[words[0]]["parser_args"])
 
                 completions = [i for i in options if i.startswith(text) and i not in words]
 
@@ -184,7 +184,7 @@ class Console(object):
                 # completion for paths only if it makes sense
                 if text.startswith("~"):
                     text = "{0}{1}".format(expanduser("~"), text[1:])
-                return (glob.glob(text + "*") + [None])[state]
+                return (glob.glob(f"{text}*") + [None])[state]
 
             return
 
@@ -219,7 +219,7 @@ class Console(object):
             # status changes.
             prefix = ""
             if __project__.name:
-                prefix = bold(cyan(__project__.name)) + " "
+                prefix = f"{bold(cyan(__project__.name))} "
 
             if __sessions__.is_set():
                 stored = ""
@@ -231,27 +231,23 @@ class Console(object):
 
                 misp = ""
                 if __sessions__.current.misp_event:
-                    misp = " [MISP"
-                    if __sessions__.current.misp_event.event.id:
-                        misp += " {}".format(__sessions__.current.misp_event.event.id)
-                    else:
-                        misp += " New Event"
+                    misp = " [MISP" + (
+                        " {}".format(__sessions__.current.misp_event.event.id)
+                        if __sessions__.current.misp_event.event.id
+                        else " New Event"
+                    )
+
                     if __sessions__.current.misp_event.off:
                         misp += " (Offline)"
                     misp += "]"
 
                 prompt = (prefix + cyan("viper ", True) +
                           white(filename, True) + blue(misp, True) + stored + cyan(" > ", True))
-            # Otherwise display the basic prompt.
             else:
                 prompt = prefix + cyan("viper > ", True)
 
             # force str (Py3) / unicode (Py2) for prompt
-            if sys.version_info <= (3, 0):
-                prompt = prompt.encode("utf-8")
-            else:
-                prompt = str(prompt)
-
+            prompt = prompt.encode("utf-8") if sys.version_info <= (3, 0) else str(prompt)
             # Wait for input from the user.
             try:
                 data = input(prompt).strip()

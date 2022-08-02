@@ -43,11 +43,7 @@ class Copy(Command):
             self.log('error', "No open session. This command expects a file to be open.")
             return
 
-        if not __project__.name:
-            src_project = "default"
-        else:
-            src_project = __project__.name
-
+        src_project = __project__.name or "default"
         db = Database()
 
         db.copied_id_sha256 = []
@@ -60,7 +56,7 @@ class Copy(Command):
             for item_id, item_sha256 in db.copied_id_sha256:
                 db.delete_file(item_id)
                 os.remove(get_sample_path(item_sha256))
-                self.log('info', "Deleted: {}".format(item_sha256))
+                self.log('info', f"Deleted: {item_sha256}")
 
         if res:
             self.log('success', "Successfully copied sample(s)")

@@ -12,8 +12,11 @@ def download(url, tor=False):
     s.headers.update({'User-agent': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)'})
     proxies = {}
     if tor:
-        proxies = {'http': 'socks5://{}:{}'.format('127.0.0.1', 9050),
-                   'https': 'socks5://{}:{}'.format('127.0.0.1', 9050)}
+        proxies = {
+            'http': 'socks5://127.0.0.1:9050',
+            'https': 'socks5://127.0.0.1:9050',
+        }
+
     try:
         res = s.get(url, proxies=proxies)
         res.raise_for_status()

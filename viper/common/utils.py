@@ -55,11 +55,10 @@ def string_clean_hex(line):
     for c in line:
         if c in string.printable:
             new_line += c
+        elif sys.version_info >= (3, 0):
+            new_line += '\\x' + binascii.hexlify(c.encode('utf-8')).decode('utf-8')
         else:
-            if sys.version_info >= (3, 0):
-                new_line += '\\x' + binascii.hexlify(c.encode('utf-8')).decode('utf-8')
-            else:
-                new_line += '\\x' + c.encode('hex')
+            new_line += '\\x' + c.encode('hex')
     return new_line
 
 
@@ -73,12 +72,11 @@ def hexdump(src, length=16, maxlines=None):
         if isinstance(chars, str):
             chars = [ord(x) for x in chars]
         hex = ' '.join(["%02x" % x for x in chars])
-        printable = ''.join(["%s" % ((x <= 127 and FILTER[x]) or '.') for x in chars])
+        printable = ''.join([f"{(x <= 127 and FILTER[x]) or '.'}" for x in chars])
         lines.append("%04x  %-*s  %s\n" % (c, length * 3, hex, printable))
 
-        if maxlines:
-            if len(lines) == maxlines:
-                break
+        if maxlines and len(lines) == maxlines:
+            break
 
     return ''.join(lines)
 
